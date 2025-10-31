@@ -3,102 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Groq Chatbot</title>
+    <title>NexusAI Chatbot</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-color-start: #0d0221;
+            --bg-color-end: #0a0119;
+            --primary-color: #261447;
+            --secondary-color: #2a2d43;
+            --accent-color-1: #ff3864;
+            --accent-color-2: #8c78d8;
+            --text-color: #e0e0e0;
+            --header-font: 'Orbitron', sans-serif;
+            --body-font: 'Roboto', sans-serif;
+        }
+
         body {
-            font-family: sans-serif;
+            font-family: var(--body-font);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
-        }
-        #chat-container {
-            width: 400px;
-            height: 600px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
+            background: linear-gradient(135deg, var(--bg-color-start), var(--bg-color-end));
+            animation: gradient-animation 20s ease infinite;
+            background-size: 400% 400%;
+            color: var(--text-color);
             overflow: hidden;
         }
+
+        #chat-container {
+            width: 95%;
+            max-width: 600px;
+            height: 90vh;
+            border: 1px solid var(--accent-color-2);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            background-color: rgba(22, 33, 62, 0.85);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 40px rgba(140, 120, 216, 0.4);
+            position: relative;
+            background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.05"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');
+        }
+
+        #chat-header {
+            padding: 20px;
+            font-family: var(--header-font);
+            font-size: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--accent-color-2);
+            background: linear-gradient(90deg, var(--accent-color-1), var(--accent-color-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
         #chat-box {
             flex-grow: 1;
-            padding: 10px;
+            padding: 20px;
             overflow-y: auto;
-            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
+
+        .message {
+            padding: 15px 22px;
+            border-radius: 25px;
+            max-width: 75%;
+            animation: slideIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            line-height: 1.6;
+        }
+
+        .user-message {
+            background: linear-gradient(45deg, var(--accent-color-1), #ff6a88);
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message {
+            background-color: var(--secondary-color);
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            padding: 15px 22px;
+        }
+
+        .typing-indicator span {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--accent-color-2);
+            animation: pulse 1.5s infinite;
+            margin: 0 3px;
+        }
+
+        .typing-indicator span:nth-child(2) { animation-delay: 0.3s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.6s; }
+
         #user-input {
             display: flex;
-            padding: 10px;
-            border-top: 1px solid #ccc;
+            padding: 20px;
+            border-top: 1px solid var(--accent-color-2);
         }
+
         #user-input input {
             flex-grow: 1;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            padding: 8px;
-            margin-right: 10px;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 25px;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: box-shadow 0.3s;
         }
+
+        #user-input input:focus {
+            outline: none;
+            box-shadow: 0 0 15px var(--accent-color-2);
+        }
+
         #user-input button {
             border: none;
-            background-color: #007bff;
+            background: linear-gradient(45deg, var(--accent-color-2), var(--accent-color-1));
             color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
+            padding: 15px 25px;
+            border-radius: 25px;
             cursor: pointer;
+            margin-left: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: var(--header-font);
         }
-        .user-message {
-            text-align: right;
-            margin: 10px 0;
+
+        #user-input button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--accent-color-1);
         }
-        .bot-message {
-            text-align: left;
-            margin: 10px 0;
+
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .bot-message { animation-name: slideInFromLeft; }
+        @keyframes slideInFromLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; transform: scale(1.2); }
         }
     </style>
 </head>
 <body>
     <div id="chat-container">
-        <div id="chat-box"></div>
+        <div id="chat-header">NexusAI</div>
+        <div id="chat-box">
+            <div class="typing-indicator">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
         <div id="user-input">
-            <input type="text" id="message" placeholder="Type a message...">
+            <input type="text" id="message" placeholder="Message NexusAI..." autocomplete="off">
             <button onclick="sendMessage()">Send</button>
         </div>
     </div>
 
     <script>
+        document.getElementById('message').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
         async function sendMessage() {
             const messageInput = document.getElementById('message');
-            const message = messageInput.value;
+            const message = messageInput.value.trim();
             if (!message) return;
 
             const chatBox = document.getElementById('chat-box');
+            const typingIndicator = document.querySelector('.typing-indicator');
 
+            // Display user message
             const userMessageElement = document.createElement('div');
-            userMessageElement.classList.add('user-message');
-            userMessageElement.innerHTML = `<p><b>You:</b> ${message}</p>`;
-            chatBox.appendChild(userMessageElement);
-
-            const response = await fetch('/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ message })
-            });
-
-            const data = await response.json();
-
-            const botMessageElement = document.createElement('div');
-            botMessageElement.classList.add('bot-message');
-            botMessageElement.innerHTML = `<p><b>Bot:</b></p>${marked.parse(data.response)}`;
-            chatBox.appendChild(botMessageElement);
-
+            userMessageElement.className = 'message user-message';
+            userMessageElement.innerHTML = marked.parse(message);
+            chatBox.insertBefore(userMessageElement, typingIndicator);
             messageInput.value = '';
             chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Show typing indicator
+            typingIndicator.style.display = 'block';
+
+            // Send to backend and get response
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+
+                typingIndicator.style.display = 'none';
+
+                const botMessageElement = document.createElement('div');
+                botMessageElement.className = 'message bot-message';
+                botMessageElement.innerHTML = marked.parse(data.response);
+                chatBox.insertBefore(botMessageElement, typingIndicator);
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+            } catch (error) {
+                typingIndicator.style.display = 'none';
+                const errorElement = document.createElement('div');
+                errorElement.className = 'message bot-message';
+                errorElement.innerHTML = "An error occurred. Please try again.";
+                chatBox.insertBefore(errorElement, typingIndicator);
+                chatBox.scrollTop = chatBox.scrollHeight;
+                console.error("Error:", error);
+            }
         }
     </script>
 </body>
