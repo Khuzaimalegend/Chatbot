@@ -1,18 +1,20 @@
 
-import os
 from flask import Flask, render_template, request, jsonify
 from groq import Groq
+from pyngrok import ngrok
 
 app = Flask(__name__)
 
-# Replace with your Groq API key
+# Hardcoded Groq API key
 groq_api_key = "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"
 
-
 client = Groq(
-    api_key="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"
+    api_key=groq_api_key,
 )
 
+# Hardcoded ngrok authtoken
+ngrok_authtoken = "2yDwhspkLWqMo2txVlyTj8ksAhR_7oxCzRQf9q26nusFo1zPY"
+ngrok.set_auth_token(ngrok_authtoken)
 
 @app.route("/")
 def index():
@@ -36,4 +38,6 @@ def chat():
     return jsonify({"response": bot_response})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    public_url = ngrok.connect(5000)
+    print(" * ngrok tunnel \"{}\" -> \"http://127.0.0.1:5000\"".format(public_url))
+    app.run()

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Groq Chatbot</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         body {
             font-family: sans-serif;
@@ -49,6 +50,14 @@
             border-radius: 4px;
             cursor: pointer;
         }
+        .user-message {
+            text-align: right;
+            margin: 10px 0;
+        }
+        .bot-message {
+            text-align: left;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
@@ -68,8 +77,9 @@
 
             const chatBox = document.getElementById('chat-box');
 
-            const userMessageElement = document.createElement('p');
-            userMessageElement.textContent = `You: ${message}`;
+            const userMessageElement = document.createElement('div');
+            userMessageElement.classList.add('user-message');
+            userMessageElement.innerHTML = `<p><b>You:</b> ${message}</p>`;
             chatBox.appendChild(userMessageElement);
 
             const response = await fetch('/chat', {
@@ -82,8 +92,9 @@
 
             const data = await response.json();
 
-            const botMessageElement = document.createElement('p');
-            botMessageElement.textContent = `Bot: ${data.response}`;
+            const botMessageElement = document.createElement('div');
+            botMessageElement.classList.add('bot-message');
+            botMessageElement.innerHTML = `<p><b>Bot:</b></p>${marked.parse(data.response)}`;
             chatBox.appendChild(botMessageElement);
 
             messageInput.value = '';
