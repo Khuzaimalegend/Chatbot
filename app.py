@@ -28,7 +28,9 @@ def chat():
         messages=[
             {"role": "user", "content": user_message}
         ],
-        model="mixtral-8x7b-32768",
+        model="llama3-70b-8192",
+        max_tokens=8192,
+        temperature=1.0,
     )
 
     bot_response = chat_completion.choices[0].message.content
