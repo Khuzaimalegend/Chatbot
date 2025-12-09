@@ -6,13 +6,16 @@ from pyngrok import ngrok
 
 app = Flask(__name__)
 
-# --- Hardcoded API Keys ---
-groq_api_key = "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"
-# IMPORTANT: Replace with your actual ngrok authtoken
-ngrok_authtoken = "YOUR_NGROK_AUTHTOKEN_HERE"
+# --- Load API Keys from Environment Variables ---
+groq_api_key = os.environ.get("GROQ_API_KEY")
+ngrok_authtoken = os.environ.get("NGROK_AUTHTOKEN")
+
+if not groq_api_key:
+    raise ValueError("GROQ_API_KEY environment variable not set. Get one from https://console.groq.com/keys")
 
 client = Groq(api_key=groq_api_key)
-if ngrok_authtoken != "YOUR_NGROK_AUTHTOKEN_HERE":
+
+if ngrok_authtoken:
     ngrok.set_auth_token(ngrok_authtoken)
 # ---------------------------
 
@@ -42,13 +45,15 @@ if __name__ == "__main__":
         print(f"No existing ngrok processes to kill or an error occurred: {e}")
 
     # Connect to ngrok and create a public URL
-    if ngrok_authtoken != "YOUR_NGROK_AUTHTOKEN_HERE":
+    if ngrok_authtoken:
         try:
             public_url = ngrok.connect(5000)
             print(f" * ngrok tunnel \"{public_url}\" -> \"http://127.0.0.1:5000\"")
             app.run()
         except Exception as e:
             print(f"Error starting ngrok tunnel: {e}")
+            print("ngrok tunnel failed. Running on localhost only.")
+            app.run(port=5000)
     else:
-        print("ngrok authtoken not set. Running on localhost only.")
+        print("NGROK_AUTHTOKEN not set. Running on localhost only.")
         app.run(port=5000)
