@@ -23,11 +23,12 @@ def index():
 @app.route("/chat", methods=["POST"])
 def chat():
     user_message = request.json["message"]
+    history = request.json.get("history", [])
+
+    messages = history + [{"role": "user", "content": user_message}]
 
     chat_completion = client.chat.completions.create(
-        messages=[
-            {"role": "user", "content": user_message}
-        ],
+        messages=messages,
         model="llama3-70b-8192",
         max_tokens=8192,
         temperature=1.0,
