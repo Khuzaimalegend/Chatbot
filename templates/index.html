@@ -183,6 +183,8 @@
     </div>
 
     <script>
+        let conversationHistory = [];
+
         document.getElementById('message').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMessage();
@@ -213,20 +215,25 @@
                 const response = await fetch('/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message })
+                    body: JSON.stringify({ message, history: conversationHistory })
                 });
 
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
                 const data = await response.json();
+                const botResponse = data.response;
 
                 typingIndicator.style.display = 'none';
 
                 const botMessageElement = document.createElement('div');
                 botMessageElement.className = 'message bot-message';
-                botMessageElement.innerHTML = marked.parse(data.response);
+                botMessageElement.innerHTML = marked.parse(botResponse);
                 chatBox.insertBefore(botMessageElement, typingIndicator);
                 chatBox.scrollTop = chatBox.scrollHeight;
+
+                // Add messages to history
+                conversationHistory.push({ role: 'user', content: message });
+                conversationHistory.push({ role: 'assistant', content: botResponse });
 
             } catch (error) {
                 typingIndicator.style.display = 'none';
